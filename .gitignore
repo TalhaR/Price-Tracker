@@ -6,6 +6,9 @@ __pycache__/
 # PyCharm files
 .idea
 
+# Config File with Bot & User Information
+config.py
+
 # Distribution / packaging
 MANIFEST
 
