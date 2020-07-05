@@ -12,7 +12,13 @@ config.py
 # Debugging files
 test*.py
 *.html
+
+# Program files
+*.csv
 *.txt
+
+# Visual Studio Code
+.vscode
 
 # Distribution / packaging
 MANIFEST
