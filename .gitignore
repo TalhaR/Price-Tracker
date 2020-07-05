@@ -9,6 +9,11 @@ __pycache__/
 # Config File with Bot & User Information
 config.py
 
+# Debugging files
+test*.py
+*.html
+*.txt
+
 # Distribution / packaging
 MANIFEST
 
