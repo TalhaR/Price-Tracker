@@ -12,45 +12,48 @@ HEADERS = ({'User-Agent':
 
 def request(url: str):
     res = requests.get(url, headers=HEADERS)
+    res.raise_for_status()
     return BeautifulSoup(res.text, 'lxml')
 
 
-def sendEmail(title: str, price: str):
-    port = 465
-    context = ssl.create_default_context()
+def sendEmail(title: str, url: str, price: str):
+    cont = ssl.create_default_context()
 
-    message = f"""Price Tracker
-        \rA product on your wishlist is within your target price
+    message = f"""Subject: Amazon Item Pricedrop\nPrice Tracker
+        \rA product on your Amazon wishlist is within your target price
         \rProduct: {title}
-        \rPrice: {price}
+        \rPrice: ${price}
+        \rURL: {url}
     """
 
-    with smtplib.SMTP_SSL('smtp.gmail.com', port, context=context) as server:
+    with smtplib.SMTP_SSL('smtp.gmail.com', port=465, context=cont) as server:
         server.login(config.bot_email, config.bot_password)
         server.sendmail(config.bot_email, config.recipient, message)
 
 
-def check_price(soup, target_price: float):
+def check_price(soup, target_price: float) -> float:
     price_elem = soup.find(id='priceblock_ourprice')
-    title_elem = soup.find(id='productTitle')
 
-    if not price_elem or not title_elem:
-        print("Error: Either URL or Target_Price incorrect")
-        return False
+    if not price_elem:
+        if soup.find(id='productTitle') is None:
+            print('Error: Either URL or Target_Price incorrect')
+        else:
+            print('Item Out of Stock')
+        return -1
 
-    numeric_price = str_price = price_elem.get_text().strip()
+    price = price_elem.get_text().strip()
 
-    for c in ('$', ',', ' '):
-        numeric_price = numeric_price.replace(c, '')
+    for c in ('$', ','):
+        price = price.replace(c, '')
 
-    numeric_price = float(numeric_price)
+    price = float(price)
 
-    if (numeric_price < target_price):
-        sendEmail(title_elem.get_text().strip(), str_price)
+    if (price < target_price):
         print('passes')
-        return True
-
-    return False
+        return price
+    else:
+        print('does not pass')
+    return -1
 
 
 def create_wishlist():
@@ -64,27 +67,30 @@ def process_wishlist():
             reader = csv.reader(csv_file)
 
             if (os.path.getsize('wishlist.csv') < 19):
-                print("Wishlist.csv is empty. Please add items")
+                print('Wishlist.csv is empty. Please add items')
 
             next(reader)
             for url, target_price in reader:
                 soup = request(url)
-                check_price(soup, float(target_price))
+                price = check_price(soup, float(target_price))
+                if price != -1:
+                    title = soup.find(id='productTitle').get_text().strip()
+                    sendEmail(title, url, price)
     except FileNotFoundError:
         create_wishlist()
         print("""Error: Wishlist.csv file couldn't be accessed
         \rNew wishlist.csv file created.
         Please update it before running this script again""")
     except ValueError:
-        print("Wishlist.csv file not filled or formatted correctly")
-    except Exception as exception:
-        print(exception)
+        print('Wishlist.csv file not filled or formatted correctly')
+    except Exception as e:
+        print(e)
 
 
 def main():
     if not os.path.exists('wishlist.csv'):
         create_wishlist()
-        print("Please update wishlist.csv before running this script again")
+        print('Please update wishlist.csv before running this script again')
     else:
         process_wishlist()
 
