@@ -1,9 +1,10 @@
 # Price-Tracker
-Python Web Scrapper that notifies if desired Amazon products dropped in price
+Amazon Web Scrapper that notifies if desired product dropped in price 
 
 # Requirements
 - Python 3.5.x or higher
 - Gmail Account for Bot
+  - Must allow Less Secure Apps
 
 # Installation
 - Clone Repository
