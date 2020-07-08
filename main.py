@@ -2,7 +2,8 @@ import requests
 import lxml
 from bs4 import BeautifulSoup
 from time import sleep
-import csv, smtplib, ssl, config, os, random
+from random import randint
+import csv, smtplib, ssl, config, os
 
 HEADERS = ({'User-Agent':
             'Mozilla/5.0 (X11; Ubuntu; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari',
@@ -48,12 +49,10 @@ def check_price(soup: BeautifulSoup, target_price: float) -> float:
         print('A Target_Price in wishlist.csv is negative. Consider updating to a positive integer')
 
     price = price_elem.get_text().strip()
-
     for c in ('$', ','):
         price = price.replace(c, '')
 
     price = float(price)
-
     if (price < target_price):
         print('An item met the criteria')
         return price
@@ -90,7 +89,7 @@ def process_wishlist() -> None:
         Please update it before running this script again""")
         exit(1)
     except ValueError:
-        print('Error: Target_value in Wishlist.csv file not formatted correctly')
+        print('Error: Target_value(s) in Wishlist.csv file not formatted correctly')
         exit(2)
     except Exception as e:
         print(e)
@@ -107,7 +106,7 @@ def main():
             process_wishlist()
             # Delay checking to once every 25-45 mins 
             # Not recommended to lower below 900 to avoid Amazon blocking requests
-            sleep(random.randint(1500, 2700))
+            sleep(randint(1500, 2700))
 
 
 if __name__ == '__main__':
