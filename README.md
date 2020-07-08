@@ -1,5 +1,5 @@
 # Price-Tracker
-Python Web Scrapper that notifies if desired products dropped in price
+Python Web Scrapper that notifies if desired Amazon products dropped in price
 
 # Requirements
 - Python 3.5.x or higher
